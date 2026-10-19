@@ -6,17 +6,14 @@ from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 from unittest.mock import patch
 
-import database
-import main
-from tickets import consultar_chamado, excluir_chamado, cadastrar_chamado
+from helpdesk_lite import cli, database
+from helpdesk_lite.tickets import cadastrar_chamado, consultar_chamado, excluir_chamado
 
 
 class BaseCLI(unittest.TestCase):
     def setUp(self):
         self.temp_dir = tempfile.TemporaryDirectory()
-        self.patch_db = patch.object(
-            database, "DATABASE_PATH", Path(self.temp_dir.name) / "test.db"
-        )
+        self.patch_db = patch.object(database, "DATABASE_PATH", Path(self.temp_dir.name) / "test.db")
         self.patch_db.start()
         database.inicializar_banco()
 
@@ -27,7 +24,7 @@ class BaseCLI(unittest.TestCase):
     def executar(self, *argv):
         saida, erro = io.StringIO(), io.StringIO()
         with redirect_stdout(saida), redirect_stderr(erro):
-            codigo = main.main(list(argv))
+            codigo = cli.main(list(argv))
         return codigo, saida.getvalue(), erro.getvalue()
 
     def criar(self, titulo="Sem rede"):
@@ -49,8 +46,15 @@ class TestExcluirChamado(BaseCLI):
 class TestSubcomandos(BaseCLI):
     def test_novo_e_listar_json(self):
         codigo, saida, _ = self.executar(
-            "novo", "--titulo", "Teclado", "--descricao", "Falha",
-            "--solicitante", "Ana", "--categoria", "hardware",
+            "novo",
+            "--titulo",
+            "Teclado",
+            "--descricao",
+            "Falha",
+            "--solicitante",
+            "Ana",
+            "--categoria",
+            "hardware",
         )
         self.assertEqual(codigo, 0)
         self.assertIn("#1", saida)
@@ -110,8 +114,15 @@ class TestSubcomandos(BaseCLI):
 
     def test_titulo_vazio_retorna_erro(self):
         codigo, _, erro = self.executar(
-            "novo", "--titulo", " ", "--descricao", "x",
-            "--solicitante", "Ana", "--categoria", "rede",
+            "novo",
+            "--titulo",
+            " ",
+            "--descricao",
+            "x",
+            "--solicitante",
+            "Ana",
+            "--categoria",
+            "rede",
         )
 
         self.assertEqual(codigo, 1)
@@ -119,10 +130,19 @@ class TestSubcomandos(BaseCLI):
 
     def test_categoria_invalida_rejeitada_pelo_parser(self):
         with redirect_stderr(io.StringIO()), self.assertRaises(SystemExit) as ctx:
-            main.main([
-                "novo", "--titulo", "x", "--descricao", "x",
-                "--solicitante", "Ana", "--categoria", "invalida",
-            ])
+            cli.main(
+                [
+                    "novo",
+                    "--titulo",
+                    "x",
+                    "--descricao",
+                    "x",
+                    "--solicitante",
+                    "Ana",
+                    "--categoria",
+                    "invalida",
+                ]
+            )
 
         self.assertEqual(ctx.exception.code, 2)
 

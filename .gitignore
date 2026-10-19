@@ -19,3 +19,11 @@ venv/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Build, testes e cobertura
+build/
+dist/
+*.egg-info/
+.coverage
+htmlcov/
+.ruff_cache/

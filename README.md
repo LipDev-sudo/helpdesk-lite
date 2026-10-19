@@ -1,99 +1,96 @@
 # HelpDesk Lite
 
-Sistema de gerenciamento de chamados de suporte técnico desenvolvido em Python e SQLite, com foco em validação de dados, persistência e testes automatizados.
+Sistema de gerenciamento de chamados de suporte técnico em Python e SQLite, com menu interativo, subcomandos de linha de comando, histórico de alterações e indicadores. Foco em validação de dados, persistência e testes automatizados.
 
 ## Funcionalidades
 
-- Cadastro de chamados com título, descrição, solicitante, categoria e prioridade.
-- Consulta de chamados por identificador.
-- Listagem e filtragem de chamados por status.
-- Atualização do status dos chamados.
-- Exclusão de chamados, com confirmação.
-- Uso por subcomandos (`novo`, `listar`, `ver`, `status`, `excluir`) com saída `--json`, além do menu interativo.
-- Validação de campos obrigatórios e identificadores.
-- Validação de categorias, prioridades e status.
-- Normalização de categorias e prioridades.
-- Persistência de dados utilizando SQLite.
-- Testes automatizados com `unittest`.
+- cadastro de chamados com título, descrição, solicitante, categoria (`hardware`, `software`, `rede`, `acesso`, `outro`) e prioridade (`baixa`, `media`, `alta`, `critica`);
+- listagem com filtros por status, categoria, prioridade e solicitante, busca por texto (título, descrição e solicitante) e ordenação por data ou prioridade;
+- consulta de um chamado com datas de criação, atualização e resolução e o **histórico** de alterações;
+- edição de título, descrição, solicitante, categoria e prioridade, e atualização de status (`aberto`, `em andamento`, `resolvido`);
+- exclusão com confirmação;
+- **resumo** com totais por status, prioridade e categoria, pendências de alta prioridade e tempo médio de resolução;
+- **exportação** para CSV ou JSON (CSV protegido contra injeção de fórmulas em planilhas);
+- validação de campos obrigatórios, identificadores, categorias, prioridades e status, com normalização de maiúsculas e espaços;
+- banco SQLite com **migrações automáticas**: um banco criado em versão anterior é atualizado sem perda de dados.
 
 ## Tecnologias
 
-- **Linguagem:** Python 3.13+
-- **Banco de dados:** SQLite
-- **Testes:** `unittest`
-- **Versionamento:** Git e GitHub
-
-## Requisitos
-
-- Python 3.13 ou superior.
-
-O projeto utiliza o módulo `sqlite3`, disponível na biblioteca padrão do Python.
+- **Linguagem:** Python 3.10 ou superior (testado no CI em 3.10, 3.11, 3.12 e 3.13)
+- **Banco de dados:** SQLite (módulo `sqlite3` da biblioteca padrão), sem dependências externas
+- **Qualidade:** `unittest`, `ruff` e GitHub Actions (lint, testes em várias versões, instalação do pacote e cobertura mínima de 85%)
 
 ## Como executar
-
-Clone o repositório:
 
 ```bash
 git clone https://github.com/LipDev-sudo/helpdesk-lite.git
 cd helpdesk-lite
-```
-
-Execute a aplicação (sem argumentos abre o menu interativo):
-
-```bash
 python main.py
 ```
 
-Ou use os subcomandos:
+Sem argumentos abre o menu interativo. Também pode ser usado por subcomandos:
 
 ```bash
 python main.py novo --titulo "Sem rede" --descricao "Sem acesso à internet" \
   --solicitante "Ana" --categoria rede --prioridade alta
-python main.py listar --status aberto
-python main.py listar --json
-python main.py ver 1
+python main.py listar --status aberto --ordenar prioridade
+python main.py listar --busca impressora --categoria hardware --json
+python main.py ver 1                      # dados e histórico
+python main.py editar 1 --prioridade critica
 python main.py status 1 "em andamento"
 python main.py excluir 1 --sim
+python main.py resumo
+python main.py exportar --formato csv -o chamados.csv
 python main.py --help
 ```
 
 Erros de validação saem com código 1; argumentos inválidos, com código 2.
 
-## Executar os testes
+### Banco de dados
 
-Na raiz do projeto, execute:
+Por padrão, os dados ficam em `helpdesk.db` na raiz do projeto. Para usar outro arquivo:
+
+```bash
+python main.py --db /caminho/outro.db listar
+HELPDESK_DB=/caminho/outro.db python main.py resumo
+```
+
+### Instalação como comando (opcional)
+
+```bash
+python -m pip install .
+helpdesk resumo
+```
+
+## Executar os testes
 
 ```bash
 python -m unittest discover -s tests -v
 ```
 
-A suíte de testes verifica funcionalidades como cadastro, consulta, listagem, atualização de status e validação de entradas.
+Os testes usam bancos temporários e não alteram o `helpdesk.db` local. O workflow `.github/workflows/tests.yml` roda a cada push e pull request na `main`: lint, testes em Python 3.10 a 3.13, instalação como pacote e cobertura.
 
 ## Estrutura do projeto
 
 ```text
 helpdesk-lite/
-├── database.py
-├── main.py
-├── tickets.py
-├── .github/workflows/tests.yml
-└── tests/
-    ├── test_tickets.py
-    └── test_cli.py
+├── main.py                  # atalho: python main.py
+├── helpdesk_lite/
+│   ├── cli.py               # menu interativo e subcomandos
+│   ├── tickets.py           # regras de negócio dos chamados
+│   └── database.py          # conexão, esquema e migrações
+├── tests/                   # testes automatizados
+├── pyproject.toml           # pacote (comando `helpdesk`) e configuração do ruff
+└── .github/workflows/tests.yml
 ```
-
-- `main.py`: menu interativo e subcomandos.
-- `tickets.py`: operações e regras de negócio dos chamados.
-- `database.py`: acesso e gerenciamento do banco de dados.
-- `tests/`: testes automatizados (usam um banco temporário e não alteram o `helpdesk.db` local).
 
 ## Limitações
 
-Não há autenticação, múltiplos usuários, interface web nem edição do conteúdo de um chamado (apenas o status).
+Não há autenticação, múltiplos usuários, anexos nem interface web.
 
 ## Objetivo do projeto
 
-Projeto autoral desenvolvido para consolidar conhecimentos em Python, operações com bancos de dados relacionais, validação de entradas, organização de código e testes automatizados.
+Projeto autoral desenvolvido para consolidar conhecimentos em Python, operações com bancos de dados relacionais, migrações de esquema, validação de entradas, organização de código e testes automatizados.
 
 ## Autor
 

@@ -1,4 +1,3 @@
-
 name: Testes automatizados
 
 on:
@@ -7,11 +6,13 @@ on:
   pull_request:
     branches: [main]
 
-jobs:
-  tests:
-    name: Testes Python
-    runs-on: ubuntu-latest
+permissions:
+  contents: read
 
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
     steps:
       - name: Baixar o código
         uses: actions/checkout@v5
@@ -21,5 +22,53 @@ jobs:
         with:
           python-version: "3.13"
 
+      - name: Instalar ruff
+        run: python -m pip install ruff
+
+      - name: Verificar estilo e erros
+        run: ruff check .
+
+      - name: Verificar formatação
+        run: ruff format --check .
+
+  tests:
+    name: Testes (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+    steps:
+      - name: Baixar o código
+        uses: actions/checkout@v5
+
+      - name: Configurar Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+
       - name: Executar testes
         run: python -m unittest discover -s tests -v
+
+      - name: Verificar a instalação como pacote
+        run: |
+          python -m pip install .
+          helpdesk --version
+
+  cobertura:
+    name: Cobertura
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar o código
+        uses: actions/checkout@v5
+
+      - name: Configurar Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Medir cobertura (mínimo de 85%)
+        run: |
+          python -m pip install coverage
+          coverage run --source=helpdesk_lite -m unittest discover -s tests
+          coverage report --fail-under=85
