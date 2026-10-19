@@ -116,3 +116,14 @@ def atualizar_status(chamado_id, novo_status):
 
         return True
 
+def excluir_chamado(chamado_id):
+    with conexao_banco() as conexao:
+        cursor = conexao.execute(
+            "DELETE FROM chamados WHERE id = ?",
+            (chamado_id,),
+        )
+
+        if cursor.rowcount == 0:
+            raise ValueError("Chamado não encontrado.")
+
+        return True

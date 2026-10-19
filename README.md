@@ -4,10 +4,12 @@ Sistema de gerenciamento de chamados de suporte técnico desenvolvido em Python 
 
 ## Funcionalidades
 
-- Cadastro de chamados com título, categoria e prioridade.
+- Cadastro de chamados com título, descrição, solicitante, categoria e prioridade.
 - Consulta de chamados por identificador.
 - Listagem e filtragem de chamados por status.
 - Atualização do status dos chamados.
+- Exclusão de chamados, com confirmação.
+- Uso por subcomandos (`novo`, `listar`, `ver`, `status`, `excluir`) com saída `--json`, além do menu interativo.
 - Validação de campos obrigatórios e identificadores.
 - Validação de categorias, prioridades e status.
 - Normalização de categorias e prioridades.
@@ -36,11 +38,26 @@ git clone https://github.com/LipDev-sudo/helpdesk-lite.git
 cd helpdesk-lite
 ```
 
-Execute a aplicação:
+Execute a aplicação (sem argumentos abre o menu interativo):
 
 ```bash
 python main.py
 ```
+
+Ou use os subcomandos:
+
+```bash
+python main.py novo --titulo "Sem rede" --descricao "Sem acesso à internet" \
+  --solicitante "Ana" --categoria rede --prioridade alta
+python main.py listar --status aberto
+python main.py listar --json
+python main.py ver 1
+python main.py status 1 "em andamento"
+python main.py excluir 1 --sim
+python main.py --help
+```
+
+Erros de validação saem com código 1; argumentos inválidos, com código 2.
 
 ## Executar os testes
 
@@ -59,14 +76,20 @@ helpdesk-lite/
 ├── database.py
 ├── main.py
 ├── tickets.py
+├── .github/workflows/tests.yml
 └── tests/
-    └── test_tickets.py
+    ├── test_tickets.py
+    └── test_cli.py
 ```
 
-- `main.py`: fluxo principal e interação com o usuário.
+- `main.py`: menu interativo e subcomandos.
 - `tickets.py`: operações e regras de negócio dos chamados.
 - `database.py`: acesso e gerenciamento do banco de dados.
-- `tests/test_tickets.py`: testes automatizados.
+- `tests/`: testes automatizados (usam um banco temporário e não alteram o `helpdesk.db` local).
+
+## Limitações
+
+Não há autenticação, múltiplos usuários, interface web nem edição do conteúdo de um chamado (apenas o status).
 
 ## Objetivo do projeto
 
