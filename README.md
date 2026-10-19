@@ -1,67 +1,104 @@
 # HelpDesk Lite
 
-Sistema de chamados de suporte em linha de comando, escrito em Python com SQLite. Permite registrar, listar, consultar e acompanhar o status de chamados de TI sem depender de serviços externos.
+Sistema de gerenciamento de chamados de suporte técnico desenvolvido em Python e SQLite, com foco em validação de dados, persistência e testes automatizados.
 
 ## Funcionalidades
 
-- cadastro de chamados com título, descrição, solicitante, categoria e prioridade;
-- categorias: `hardware`, `software`, `rede`, `acesso` e `outro`;
-- prioridades: `baixa`, `media` (padrão), `alta` e `critica`;
-- listagem de todos os chamados ou filtrada por status (`aberto`, `em andamento`, `resolvido`);
-- consulta de um chamado pelo ID;
-- atualização de status, com validação de ID e de valores permitidos;
-- exclusão de chamados, com confirmação;
-- uso por subcomandos (`novo`, `listar`, `ver`, `status`, `excluir`) e saída `--json`, além do menu interativo;
-- persistência em um arquivo SQLite local (`helpdesk.db`), criado automaticamente.
+- Cadastro de chamados com título, descrição, solicitante, categoria e prioridade.
+- Consulta de chamados por identificador.
+- Listagem e filtragem de chamados por status.
+- Atualização do status dos chamados.
+- Exclusão de chamados, com confirmação.
+- Uso por subcomandos (`novo`, `listar`, `ver`, `status`, `excluir`) com saída `--json`, além do menu interativo.
+- Validação de campos obrigatórios e identificadores.
+- Validação de categorias, prioridades e status.
+- Normalização de categorias e prioridades.
+- Persistência de dados utilizando SQLite.
+- Testes automatizados com `unittest`.
 
 ## Tecnologias
 
-- Python 3.13
-- SQLite (módulo `sqlite3` da biblioteca padrão)
-- `unittest` para testes
+- **Linguagem:** Python 3.13+
+- **Banco de dados:** SQLite
+- **Testes:** `unittest`
+- **Versionamento:** Git e GitHub
 
-Não há dependências externas.
+## Requisitos
+
+- Python 3.13 ou superior.
+
+O projeto utiliza o módulo `sqlite3`, disponível na biblioteca padrão do Python.
 
 ## Como executar
+
+Clone o repositório:
 
 ```bash
 git clone https://github.com/LipDev-sudo/helpdesk-lite.git
 cd helpdesk-lite
-python3 main.py
 ```
 
-Sem argumentos abre o menu interativo (cadastrar, listar, consultar, atualizar status e excluir). Também pode ser usado por subcomandos:
+Execute a aplicação (sem argumentos abre o menu interativo):
 
 ```bash
-python3 main.py novo --titulo "Sem rede" --descricao "Sem acesso à internet" \
+python main.py
+```
+
+Ou use os subcomandos:
+
+```bash
+python main.py novo --titulo "Sem rede" --descricao "Sem acesso à internet" \
   --solicitante "Ana" --categoria rede --prioridade alta
-python3 main.py listar --status aberto
-python3 main.py listar --json
-python3 main.py ver 1
-python3 main.py status 1 "em andamento"
-python3 main.py excluir 1 --sim
-python3 main.py --help
+python main.py listar --status aberto
+python main.py listar --json
+python main.py ver 1
+python main.py status 1 "em andamento"
+python main.py excluir 1 --sim
+python main.py --help
 ```
 
 Erros de validação saem com código 1; argumentos inválidos, com código 2.
 
-## Testes
+## Executar os testes
+
+Na raiz do projeto, execute:
 
 ```bash
-python3 -m unittest discover -s tests -v
+python -m unittest discover -s tests -v
 ```
 
-Os testes usam um banco temporário e não alteram o `helpdesk.db` local. O workflow `.github/workflows/tests.yml` os executa a cada push e pull request na `main`.
+A suíte de testes verifica funcionalidades como cadastro, consulta, listagem, atualização de status e validação de entradas.
 
-## Estrutura
+## Estrutura do projeto
 
 ```text
-main.py        # menu interativo e subcomandos
-tickets.py     # regras de negócio e validações
-database.py    # conexão e criação da tabela
-tests/         # testes automatizados
+helpdesk-lite/
+├── database.py
+├── main.py
+├── tickets.py
+├── .github/workflows/tests.yml
+└── tests/
+    ├── test_tickets.py
+    └── test_cli.py
 ```
+
+- `main.py`: menu interativo e subcomandos.
+- `tickets.py`: operações e regras de negócio dos chamados.
+- `database.py`: acesso e gerenciamento do banco de dados.
+- `tests/`: testes automatizados (usam um banco temporário e não alteram o `helpdesk.db` local).
 
 ## Limitações
 
-Projeto de estudo: não há autenticação, múltiplos usuários, interface web nem edição do conteúdo de um chamado (apenas o status).
+Não há autenticação, múltiplos usuários, interface web nem edição do conteúdo de um chamado (apenas o status).
+
+## Objetivo do projeto
+
+Projeto autoral desenvolvido para consolidar conhecimentos em Python, operações com bancos de dados relacionais, validação de entradas, organização de código e testes automatizados.
+
+## Autor
+
+**Hamilton Felipe Soares da Silva**
+
+- GitHub: https://github.com/LipDev-sudo
+- LinkedIn: https://br.linkedin.com/in/hamilton-felipe-875054383
+- Portfólio: https://lipdev.vercel.app/
