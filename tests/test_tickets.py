@@ -1,19 +1,16 @@
-
-
 import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-import database
-from main import ler_id_chamado, menu_cadastrar
-from tickets import (
-    cadastrar_chamado,
-    listar_chamados,
-    consultar_chamado,
+from helpdesk_lite import database
+from helpdesk_lite.cli import ler_id_chamado, menu_cadastrar
+from helpdesk_lite.tickets import (
     atualizar_status,
+    cadastrar_chamado,
+    consultar_chamado,
+    listar_chamados,
 )
-
 
 
 class TestCadastroChamado(unittest.TestCase):
@@ -59,7 +56,6 @@ class TestCadastroChamado(unittest.TestCase):
             ("Computador sem rede", "rede", "alta", "aberto"),
         )
 
-    
     def test_normalizar_categoria_e_prioridade(self):
         chamado_id = cadastrar_chamado(
             "  Impressora  ",
@@ -76,7 +72,6 @@ class TestCadastroChamado(unittest.TestCase):
         self.assertEqual(chamado[3], "Hamilton")
         self.assertEqual(chamado[4], "hardware")
         self.assertEqual(chamado[5], "alta")
-
 
     def test_rejeitar_campos_obrigatorios_vazios(self):
         with self.assertRaises(ValueError):
@@ -100,7 +95,7 @@ class TestCadastroChamado(unittest.TestCase):
                 "rede",
                 "urgente_demais",
             )
-    
+
     def test_listar_chamados(self):
         cadastrar_chamado(
             "Computador sem rede",
@@ -147,7 +142,6 @@ class TestCadastroChamado(unittest.TestCase):
 
         self.assertIsNone(chamado)
 
-    
     def test_atualizar_status(self):
         chamado_id = cadastrar_chamado(
             "Computador sem rede",
@@ -178,7 +172,6 @@ class TestCadastroChamado(unittest.TestCase):
 
 
 class TestLerIdChamado(unittest.TestCase):
-
     @patch("builtins.input", return_value="2")
     def test_aceitar_id_valido(self, mock_input):
         self.assertEqual(ler_id_chamado(), 2)
@@ -205,10 +198,7 @@ class TestLerIdChamado(unittest.TestCase):
 
 
 class TestMenuCadastrar(unittest.TestCase):
-
-    @patch("builtins.input", side_effect=[
-        "", "Descrição", "Hamilton", "hardware", ""
-    ])
+    @patch("builtins.input", side_effect=["", "Descrição", "Hamilton", "hardware", ""])
     def test_rejeitar_titulo_vazio(self, mock_input):
         with self.assertRaisesRegex(
             ValueError,
@@ -216,20 +206,15 @@ class TestMenuCadastrar(unittest.TestCase):
         ):
             menu_cadastrar()
 
-    @patch("builtins.input", side_effect=[
-        "Impressora", "Não imprime", "Hamilton", "hardware", ""
-    ])
+    @patch("builtins.input", side_effect=["Impressora", "Não imprime", "Hamilton", "hardware", ""])
     def test_usar_prioridade_padrao(self, mock_input):
-        with patch("main.cadastrar_chamado", return_value=17) as cadastrar:
+        with patch("helpdesk_lite.cli.cadastrar_chamado", return_value=17) as cadastrar:
             menu_cadastrar()
 
         self.assertEqual(
             cadastrar.call_args.args,
             ("Impressora", "Não imprime", "Hamilton", "hardware", "media"),
         )
-
-
-
 
 
 if __name__ == "__main__":

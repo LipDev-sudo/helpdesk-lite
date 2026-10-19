@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "helpdesk-lite"
+dynamic = ["version"]
+description = "Sistema de chamados de suporte em Python e SQLite, com menu interativo e subcomandos."
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "Hamilton Felipe Soares da Silva" }]
+keywords = ["helpdesk", "chamados", "sqlite", "cli", "suporte"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Environment :: Console",
+    "Topic :: Office/Business",
+]
+
+[project.urls]
+Repository = "https://github.com/LipDev-sudo/helpdesk-lite"
+
+[project.scripts]
+helpdesk = "helpdesk_lite.cli:main"
+
+[tool.setuptools]
+packages = ["helpdesk_lite"]
+
+[tool.setuptools.dynamic]
+version = { attr = "helpdesk_lite.__version__" }
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM"]
